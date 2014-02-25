@@ -1,0 +1,1268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://ws.identityproofing.idm.risk.lexisnexis.com/" xmlns:ns1="http://cxf.apache.org/bindings/xformat" name="identityProofingService" targetNamespace="http://ws.identityproofing.idm.risk.lexisnexis.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns:survey="http://ns.lexisnexis.com/survey/1.0" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://ns.lexisnexis.com/survey/1.0" version="9.0">
+      <xsd:complexType name="Survey">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="status" type="survey:SurveyProductStatus" />
+          <xsd:choice>
+            <xsd:element name="questions" type="survey:SurveyQuestions" />
+            <xsd:element name="surveyMessage" type="survey:SurveyMessage" />
+          </xsd:choice>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="SurveyProductStatus">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PENDING" />
+          <xsd:enumeration value="COMPLETED" />
+          <xsd:enumeration value="SYSTEM_ERROR" />
+          <xsd:enumeration value="NOT_ENOUGH_DATA" />
+          <xsd:enumeration value="SERVICE_UNAVAILABLE" />
+          <xsd:enumeration value="ABANDONED" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="SurveyQuestions">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="numQuestions" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="question" type="survey:SurveyQuestion" />
+        </xsd:sequence>
+        <xsd:attribute name="surveyId" type="xsd:string" />
+      </xsd:complexType>
+      <xsd:complexType name="SurveyQuestion">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="text" type="xsd:string" />
+          <xsd:element maxOccurs="unbounded" name="choice" type="survey:SurveyChoice" />
+        </xsd:sequence>
+        <xsd:attribute name="questionId" type="xsd:string" use="required" />
+        <xsd:attribute name="sequenceId" type="xsd:int" use="required" />
+        <xsd:attribute name="minRequiredChoices" type="xsd:int" use="optional" />
+        <xsd:attribute name="maxRequiredChoices" type="xsd:int" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="SurveyChoice">
+        <xsd:sequence>
+          <xsd:element name="text" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="choiceId" type="xsd:string" />
+        <xsd:attribute name="sequenceId" type="xsd:int" />
+      </xsd:complexType>
+      <xsd:complexType name="SurveyMessage">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="text">
+            <xsd:simpleType>
+              <xsd:restriction base="xsd:string">
+                <xsd:enumeration value="Survey answers were saved." />
+                <xsd:enumeration value="All questions were not answered." />
+                <xsd:enumeration value="Some questions do not have correct number of answers." />
+                <xsd:enumeration value="An error occurred saving answers." />
+                <xsd:enumeration value="Survey requires a unique identity." />
+                <xsd:enumeration value="Improperly configured survey." />
+                <xsd:enumeration value="Survey not found." />
+              </xsd:restriction>
+            </xsd:simpleType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="surveyId" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="SurveyAnswerSet">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="answer" type="survey:SurveyQuestionAnswer" />
+        </xsd:sequence>
+        <xsd:attribute name="surveyId" type="xsd:string" use="required" />
+      </xsd:complexType>
+      <xsd:complexType name="SurveyQuestionAnswer">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="choiceId" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="questionId" type="xsd:string" use="required" />
+      </xsd:complexType>
+      <xsd:element name="survey" type="survey:Survey" />
+      <xsd:element name="surveyAnswerSet" type="survey:SurveyAnswerSet" />
+    </xsd:schema>
+    <xsd:schema xmlns:identity="http://ns.lexisnexis.com/identity-proofing/1.0" xmlns:survey="http://ns.lexisnexis.com/survey/1.0" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://ns.lexisnexis.com/identity-proofing/1.0" version="9.0">
+      <xsd:import namespace="http://ns.lexisnexis.com/survey/1.0" />
+      <xsd:complexType name="IdentityProofingRequest">
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="workFlow" type="xsd:string" />
+          <xsd:choice>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="inputSubject" type="identity:InputSubject" />
+            <xsd:element minOccurs="0" maxOccurs="1" name="scoreRequest" type="identity:IdentityScoreRequest" />
+            <xsd:element minOccurs="0" maxOccurs="1" name="surveySaveRequest" type="survey:SurveyAnswerSet" />
+          </xsd:choice>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="RequestInfo" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="inputOptions" type="identity:InputOptions" />
+        </xsd:sequence>
+        <xsd:attribute name="transactionID" type="identity:TransactionID" use="required" />
+        <xsd:attribute name="locale" type="xsd:language" use="optional" />
+        <xsd:attribute name="customerReference" type="xsd:string" use="optional" />
+        <xsd:attribute name="source" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="RequestInfo">
+        <xsd:sequence>
+          <xsd:any minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="identity:InfoType" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="InfoType">
+        <xsd:restriction base="xsd:token">
+          <xsd:enumeration value="InstantID" />
+          <xsd:enumeration value="OTHER" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="InputSubject">
+        <xsd:sequence>
+          <xsd:choice>
+            <xsd:element minOccurs="0" maxOccurs="1" name="person" type="identity:InputPerson" />
+            <xsd:element minOccurs="0" maxOccurs="1" name="organization" type="identity:InputOrganization" />
+          </xsd:choice>
+          <xsd:element minOccurs="0" maxOccurs="1" name="options" type="identity:SubjectOptions">
+            <xsd:unique name="questionReferenceQuestionCodeKey">
+              <xsd:selector xpath="identity:QuestionReference" />
+              <xsd:field xpath="@questionCode" />
+            </xsd:unique>
+          </xsd:element>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="InputRelatedSubject">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:InputSubject">
+            <xsd:attribute name="subjectRelationship" type="identity:SubjectRelationshipTypeEnum" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:simpleType name="SubjectRelationshipTypeEnum">
+        <xsd:restriction base="xsd:token">
+          <xsd:enumeration value="SPOUSE" />
+          <xsd:enumeration value="CHILD" />
+          <xsd:enumeration value="PARENT" />
+          <xsd:enumeration value="GUARDIAN" />
+          <xsd:enumeration value="GRANDPARENT" />
+          <xsd:enumeration value="EMPLOYEE" />
+          <xsd:enumeration value="EMPLOYER" />
+          <xsd:enumeration value="CUSTOMER" />
+          <xsd:enumeration value="RELATIVE" />
+          <xsd:enumeration value="ROOMMATE" />
+          <xsd:enumeration value="NEIGHBOR" />
+          <xsd:enumeration value="PROPERTY_SELLER" />
+          <xsd:enumeration value="PROPERTY_BUYER" />
+          <xsd:enumeration value="AUTHORIZED_REPRESENTATIVE" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="InputPerson">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="name" type="identity:InputName" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="aka" type="identity:InputName" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="LexID" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="ssn" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="dateOfBirth" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="dateOfDeath" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="gender" type="identity:Gender" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="address" type="identity:InputAddress" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="phone" type="identity:InputPhone" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="email" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="ipAddress" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="taxId" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="upin" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="npi" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="license" type="identity:InputLicense" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="passport" type="identity:Passport" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="schools" type="identity:Schools" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="accounts" type="identity:InputAccounts" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="velocityAccounts" type="identity:VelocityAccounts" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="vehicle" type="identity:VehicleInfo" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="customerSubjectID" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="relatedSubject" type="identity:InputRelatedSubject" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="InputName">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="prefix" type="xsd:string" />
+          <xsd:element minOccurs="0" name="first" type="xsd:string" />
+          <xsd:element minOccurs="0" name="middle" type="xsd:string" />
+          <xsd:element minOccurs="0" name="last" type="xsd:string" />
+          <xsd:element minOccurs="0" name="suffix" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="InputOrganization">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="companyName" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="address" type="identity:InputAddress" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="phone" type="identity:InputPhone" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="email" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="taxId" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="upin" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="npi" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="license" type="identity:InputLicense" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="account" type="identity:InputAccount" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="vehicle" type="identity:VehicleInfo" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="customerSubjectID" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="relatedSubject" type="identity:InputRelatedSubject" />
+        </xsd:sequence>
+        <xsd:attribute name="entityType" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="InputAddress">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="addressLine1" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="addressLine2" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="city" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="stateCode" type="identity:StateCode" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="zip5" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="countryCode" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="addressPurpose" type="identity:AddressPurposeType" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="InputOptions">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="inputOption" type="identity:Extrinsic" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="SubjectOptions">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+				Options related to an input subject.
+			</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="questionReference" type="identity:QuestionReference" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="inputOption" type="identity:Extrinsic" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="QuestionReference">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+				Defines user supplied data to be used in generating an authentication quiz.
+				The questionCode attribute should be unique and defines the quiz question that will be generated.
+				Each data element will contain an answer for the question.  A question will be generated for each instance of data.
+				Each exclusion element will contain a value which must be excluded from the wrong answer set.
+				Each variable element can be used to replace parameters in the question text.
+			</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="unbounded" name="data" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="exclusion" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="variable" type="identity:Extrinsic" />
+        </xsd:sequence>
+        <xsd:attribute name="questionCode" type="xsd:string" use="required" />
+      </xsd:complexType>
+      <xsd:complexType name="Schools">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="school" type="identity:School" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="School">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="name" type="xsd:string" />
+          <xsd:element minOccurs="0" name="graduationYear" type="xsd:int" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="VehicleInfo">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="VIN" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="modelYear" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="make" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="model" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="majorColor" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="minorColor" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="type" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="style" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="titleInfo" type="identity:TitleInfo" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="TitleInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" maxOccurs="1" name="number" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="issueDate" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="expirationDate" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="state" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="Passport">
+        <xsd:all>
+          <xsd:element minOccurs="0" maxOccurs="1" name="number" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="issueDate" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="expirationDate" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="country" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="machineReadableLine1" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="machineReadableLine2" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="InputPhone">
+        <xsd:annotation>
+          <xsd:documentation />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="phoneNumber" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="phonePurpose" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="LicenseType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="DRIVERS_LICENSE" />
+          <xsd:enumeration value="PROFESSIONAL_LICENSE" />
+          <xsd:enumeration value="DEA_LICENSE" />
+          <xsd:enumeration value="MEDICAL_LICENSE" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="InputLicense">
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="licenseNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="issuer" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="identity:LicenseType" use="required" />
+        <xsd:attribute name="sequence" type="xsd:int" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="AccountType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="CREDIT" />
+          <xsd:enumeration value="DEBIT" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="VelocityAccounts">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="alias" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="accountId" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="identity:AccountType" />
+      </xsd:complexType>
+      <xsd:complexType name="InputAccounts">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="inputAccount" type="identity:InputAccount" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="InputAccount">
+        <xsd:sequence>
+          <xsd:element name="accountNumber" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="identity:AccountType" />
+      </xsd:complexType>
+      <xsd:complexType name="IdentityScoreRequest">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="quizId" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="answer" type="identity:IdentityQuizAnswer" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="IdentityQuizAnswer">
+        <xsd:sequence>
+          <xsd:element name="questionId" type="xsd:string" />
+          <xsd:element name="choiceId" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="IdentityProofingResponse">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="workFlow" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="status" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="statusDescription" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="productResponse" type="identity:ProductResponse" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="responseCodes" type="identity:ResponseCodes" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="identityProofingException" type="identity:IdentityProofingException" />
+        </xsd:sequence>
+        <xsd:attribute name="transactionID" type="xsd:string" />
+        <xsd:attribute name="requestId" type="xsd:string" use="optional" />
+        <xsd:attribute name="locale" type="xsd:language" use="optional" />
+        <xsd:attribute name="responseUniqueId" type="xsd:string" use="optional" />
+        <xsd:attribute name="parentResponseId" type="xsd:string" use="optional" />
+        <xsd:attribute name="customerReference" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="IdentityProofingException">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="code" type="xsd:string" />
+          <xsd:element minOccurs="0" name="source" type="xsd:string" />
+          <xsd:element minOccurs="0" name="message" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ProductResponse" abstract="true">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="responseCodes" type="identity:ResponseCodes" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="extrinsics" type="identity:Extrinsics" />
+        </xsd:sequence>
+        <xsd:attribute name="sequence" type="xsd:int" use="optional" />
+        <xsd:attribute name="LexID" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="ResponseCode">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="code" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="description" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ResponseCodes">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="responseCode" type="identity:ResponseCode" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="GenericProductResponse">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="0" maxOccurs="1" name="responseInfo" type="identity:ResponseInfo" />
+            </xsd:sequence>
+            <xsd:attribute name="type" type="identity:InfoType" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="DiscoveryResponse">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:DiscoveryProductStatus" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="recordCount" type="xsd:int" />
+              <xsd:choice>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="person" type="identity:PersonSubject" />
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="organization" type="identity:OrganizationSubject" />
+              </xsd:choice>
+              <xsd:element minOccurs="0" maxOccurs="1" name="responseInfo" type="identity:ResponseInfo" />
+            </xsd:sequence>
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="ResponseInfo">
+        <xsd:sequence>
+          <xsd:any minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="InstantVerifyResponse">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:InstantVerifyProductStatus" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="verificationSubProductResponse" type="identity:VerificationSubProductResponse" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="responseInfo" type="identity:ResponseInfo" />
+            </xsd:sequence>
+            <xsd:attribute name="score" type="xsd:double" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="InstantAuthenticateResponse">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:InstantAuthenticateProductStatus" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="questions" type="identity:Questions" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="quizScore" type="identity:QuizScore" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="responseInfo" type="identity:ResponseInfo" />
+            </xsd:sequence>
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="SurveyResponse">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+				Response for Survey product.  Will contain either a Survey or a Message indicating why a Survey was not returned.
+			</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="1" maxOccurs="1" name="status" type="survey:SurveyProductStatus" />
+              <xsd:choice>
+                <xsd:element name="questions" type="survey:SurveyQuestions" />
+                <xsd:element name="surveyMessage" type="survey:SurveyMessage" />
+              </xsd:choice>
+              <xsd:element minOccurs="0" maxOccurs="1" name="responseInfo" type="identity:ResponseInfo" />
+            </xsd:sequence>
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="Period">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="beginDate" type="identity:Date" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="endDate" type="identity:Date" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Weight">
+        <xsd:sequence>
+          <xsd:element name="value" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="unitOfMeasure" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Length">
+        <xsd:sequence>
+          <xsd:element name="value" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="lengthType" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="DLRecord">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="licenseNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="dob" type="identity:Date" />
+          <xsd:element minOccurs="0" name="expirationDate" type="identity:Date" />
+          <xsd:element minOccurs="0" name="issueDate" type="identity:Date" />
+          <xsd:element minOccurs="0" name="ssn" type="xsd:string" />
+          <xsd:element minOccurs="0" name="height" type="xsd:string" />
+          <xsd:element minOccurs="0" name="weight" type="xsd:string" />
+          <xsd:element minOccurs="0" name="licenseClass" type="xsd:string" />
+          <xsd:element minOccurs="0" name="hairColor" type="xsd:string" />
+          <xsd:element minOccurs="0" name="eyeColor" type="xsd:string" />
+          <xsd:element minOccurs="0" name="licenseType" type="xsd:string" />
+          <xsd:element minOccurs="0" name="originState" type="xsd:string" />
+          <xsd:element minOccurs="0" name="originStateName" type="xsd:string" />
+          <xsd:element minOccurs="0" name="recordType" type="xsd:string" />
+          <xsd:element minOccurs="0" name="race" type="xsd:string" />
+          <xsd:element minOccurs="0" name="sex" type="xsd:string" />
+          <xsd:element minOccurs="0" name="status" type="xsd:string" />
+          <xsd:element minOccurs="0" name="cdlStatus" type="xsd:string" />
+          <xsd:element minOccurs="0" name="history" type="xsd:string" />
+          <xsd:element minOccurs="0" name="attention" type="xsd:string" />
+          <xsd:element minOccurs="0" name="restrictions" type="xsd:string" />
+          <xsd:element minOccurs="0" name="endorsements" type="xsd:string" />
+          <xsd:element minOccurs="0" name="restrictionsDetail">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="restriction" type="xsd:string" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="endorsementsDetail">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="endorsement" type="xsd:string" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="address" type="identity:Address" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:simpleType name="Gender">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:token">
+          <xsd:enumeration value="MALE" />
+          <xsd:enumeration value="FEMALE" />
+          <xsd:enumeration value="UNKNOWN" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="Subject" abstract="true">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="extrinsics" type="identity:Extrinsics" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="PersonSubject">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:Subject">
+            <xsd:sequence>
+              <xsd:element minOccurs="0" name="name" type="identity:Name" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="akas" type="identity:Akas" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="ssn" type="xsd:string" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="dateOfBirth" type="identity:Date" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="dateOfDeath" type="identity:Date" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="isDeceased" type="xsd:boolean" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="gender" type="identity:Gender" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="height" type="identity:Length" />
+              <xsd:element minOccurs="0" name="eyeColor" type="xsd:string" />
+              <xsd:element minOccurs="0" name="hairColor" type="xsd:string" />
+              <xsd:element minOccurs="0" name="weight" type="identity:Weight" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="address" type="identity:Address" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="phones" type="identity:Phones" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="driversLicense" type="identity:DLRecord" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="passport" type="identity:Passport" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="vehicles" type="identity:Vehicles" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="taxIds" type="identity:TaxIds" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="upins" type="identity:Upins" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="npis" type="identity:Npis" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="providerIds" type="identity:ProviderIds" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="relatedSubject" type="identity:RelatedSubject" />
+            </xsd:sequence>
+            <xsd:attribute name="LexID" type="xsd:string" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="Akas">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="name" type="identity:Name" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Phones">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en">
+				A phone number, qualified by a purpose, during a given period.
+			</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="phoneNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="period" type="identity:Period" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="Vehicles">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="numberOfVehicles" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="vehicle" type="identity:VehicleInfo" />
+        </xsd:sequence>
+        <xsd:attribute name="type" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="AddressPurposeType">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:token">
+          <xsd:enumeration value="PREVIOUS_RESIDENCE" />
+          <xsd:enumeration value="SECONDARY_RESIDENCE" />
+          <xsd:enumeration value="PRIMARY_RESIDENCE" />
+          <xsd:enumeration value="GOVERNMENT_ISSUED" />
+          <xsd:enumeration value="BUSINESS" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="Extrinsic">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="name" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="value" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Extrinsics">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="extrinsic" type="identity:Extrinsic" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="InfoList">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="info" type="identity:Extrinsic" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Name">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="full" type="xsd:string" />
+          <xsd:element minOccurs="0" name="prefix" type="xsd:string" />
+          <xsd:element minOccurs="0" name="first" type="xsd:string" />
+          <xsd:element minOccurs="0" name="middle" type="xsd:string" />
+          <xsd:element minOccurs="0" name="last" type="xsd:string" />
+          <xsd:element minOccurs="0" name="suffix" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="Address">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" name="streetPreDirection" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetName" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetSuffix" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetPostDirection" type="xsd:string" />
+          <xsd:element minOccurs="0" name="houseNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="aptNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="UnitDesignation" type="xsd:string" />
+          <xsd:element minOccurs="0" name="UnitNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetAddress1" type="xsd:string" />
+          <xsd:element minOccurs="0" name="streetAddress2" type="xsd:string" />
+          <xsd:element minOccurs="0" name="city" type="xsd:string" />
+          <xsd:element minOccurs="0" name="state" type="identity:StateCode" />
+          <xsd:element minOccurs="0" name="zip5" type="xsd:string" />
+          <xsd:element minOccurs="0" name="zip4" type="xsd:string" />
+          <xsd:element minOccurs="0" name="county" type="xsd:string" />
+          <xsd:element minOccurs="0" name="country" type="xsd:string" />
+          <xsd:element minOccurs="0" name="postalCode" type="xsd:string" />
+          <xsd:element minOccurs="0" name="StateCityZip" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="phones" type="identity:Phones" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="reportedDate" type="identity:Period" />
+        </xsd:sequence>
+        <xsd:attribute name="addressType" type="identity:AddressPurposeType" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="TaxIds">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="taxId" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Upins">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="upin" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="Npis">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="npi" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ProviderIds">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="providerId" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="OrganizationSubject">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:Subject">
+            <xsd:sequence>
+              <xsd:element minOccurs="0" maxOccurs="1" name="companyName" type="xsd:string" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="entityType" type="xsd:string" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="address" type="identity:Address" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="phone" type="identity:Phones" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="driversLicense" type="identity:DLRecord" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="vehicle" type="identity:VehicleInfo" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="taxIds" type="identity:TaxIds" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="upins" type="identity:Upins" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="npis" type="identity:Npis" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="ProvideIds" type="identity:ProviderIds" />
+              <xsd:element minOccurs="0" maxOccurs="unbounded" name="relatedSubject" type="identity:RelatedSubject" />
+            </xsd:sequence>
+            <xsd:attribute name="businessId" type="xsd:string" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="RelatedSubject">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:Subject">
+            <xsd:attribute name="subjectRelationship" type="identity:SubjectRelationshipTypeEnum" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="Date">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Year" type="identity:FieldYear" />
+          <xsd:element minOccurs="0" name="Month" type="identity:FieldMonth" />
+          <xsd:element minOccurs="0" name="Day" type="identity:FieldDay" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:simpleType name="Time">
+        <xsd:restriction base="xsd:integer">
+          <xsd:totalDigits value="10" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="StateCode">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="FieldDay">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="FieldMonth">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="FieldYear">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="4" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CheckGroup">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="defaultGroupName" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="check" type="identity:Check" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="infoList" type="identity:InfoList" />
+        </xsd:sequence>
+        <xsd:attribute name="groupName" type="xsd:string" />
+        <xsd:attribute name="status" type="identity:CheckStatus" use="optional" />
+        <xsd:attribute name="score" type="xsd:double" use="optional" />
+        <xsd:attribute name="sequence" type="xsd:int" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="Check">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element name="checkCode" type="xsd:string" />
+          <xsd:element name="status" type="identity:CheckStatus" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="checkScore" type="xsd:double" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="infoList" type="identity:InfoList" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="responseCodes" type="identity:ResponseCodes" />
+        </xsd:sequence>
+        <xsd:attribute name="checkId" type="xsd:string" />
+        <xsd:attribute name="sequence" type="xsd:int" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="CheckStatus">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PASS" />
+          <xsd:enumeration value="FAIL" />
+          <xsd:enumeration value="ERROR" />
+          <xsd:enumeration value="UnableToVerify" />
+          <xsd:enumeration value="NoDataFound" />
+          <xsd:enumeration value="NA" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="Questions">
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:InstantAuthenticateProductStatus" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="respondByMS" type="identity:Time" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="numQuestions" type="xsd:int" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="question" type="identity:Question" />
+        </xsd:sequence>
+        <xsd:attribute name="quizId" type="xsd:string" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="QuizScore">
+        <xsd:sequence>
+          <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:InstantAuthenticateProductStatus" />
+          <xsd:element minOccurs="1" maxOccurs="1" name="score" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="quizId" type="xsd:string" />
+        <xsd:attribute name="type" type="identity:ScoreTypes" use="optional" />
+      </xsd:complexType>
+      <xsd:simpleType name="ScoreTypes">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="TOTAL_CORRECT" />
+          <xsd:enumeration value="WEIGHTED" />
+          <xsd:enumeration value="PERCENT" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="Question">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="type" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="variableType" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="choiceType" type="xsd:string" />
+          <xsd:element name="text" type="xsd:string" />
+          <xsd:element maxOccurs="unbounded" name="choice" type="identity:Choice" />
+        </xsd:sequence>
+        <xsd:attribute name="questionId" type="xsd:string" />
+        <xsd:attribute name="sequenceId" type="xsd:int" />
+        <xsd:attribute name="eq" type="xsd:boolean" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="Choice">
+        <xsd:sequence>
+          <xsd:element name="text" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="choiceId" type="xsd:string" />
+        <xsd:attribute name="sequenceId" type="xsd:int" />
+        <xsd:attribute name="isCorrect" type="xsd:boolean" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="VerificationSubProductResponse">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="checkGroup" type="identity:CheckGroup" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="status" type="identity:InstantVerifyProductStatus" />
+        </xsd:sequence>
+        <xsd:attribute name="subProduct" type="xsd:string" use="optional" />
+        <xsd:attribute name="sequenceId" type="xsd:int" />
+        <xsd:attribute name="LexID" type="xsd:string" use="optional" />
+        <xsd:attribute name="score" type="xsd:double" use="optional" />
+      </xsd:complexType>
+      <xsd:complexType name="AccountVerificationResponse">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="1" maxOccurs="1" name="status" type="identity:InstantVerifyProductStatus" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="accountVerificationScore" type="xsd:double" />
+              <xsd:element minOccurs="0" maxOccurs="1" name="accountVerificationFlags" type="identity:AccountVerificationFlags" />
+            </xsd:sequence>
+            <xsd:attribute name="subProduct" type="xsd:string" use="optional" />
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="InstantIDResponse">
+        <xsd:complexContent mixed="false">
+          <xsd:extension base="identity:ProductResponse">
+            <xsd:sequence>
+              <xsd:element minOccurs="0" name="Header" type="identity:ResponseHeader" />
+              <xsd:element minOccurs="0" name="Result" type="identity:InstantIDResult" />
+            </xsd:sequence>
+          </xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="AccountVerificationFlags">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="hitCode" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="hitDescription" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="addressDiscrepancyCode" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="addressDiscrepancyDescription" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="fraudAlerts" type="identity:FraudAlerts" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="FraudAlerts">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="fraudAlert" type="identity:FraudAlert" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="FraudAlert">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="1" name="fraudAlertCode" type="xsd:string" />
+          <xsd:element minOccurs="0" maxOccurs="1" name="fraudAlertDescription" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="TransactionID">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="32" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="RestrictedNumber">
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="\d{4}" />
+          <xsd:maxLength value="4" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="DiscoveryProductStatus">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PASS" />
+          <xsd:enumeration value="FAIL" />
+          <xsd:enumeration value="SYSTEM_ERROR" />
+          <xsd:enumeration value="SERVICE_UNAVAILABLE" />
+          <xsd:enumeration value="COMPLETED" />
+          <xsd:enumeration value="NOT_ENOUGH_DATA" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="InstantVerifyProductStatus">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PASS" />
+          <xsd:enumeration value="FAIL" />
+          <xsd:enumeration value="SYSTEM_ERROR" />
+          <xsd:enumeration value="NOT_ENOUGH_DATA" />
+          <xsd:enumeration value="SERVICE_UNAVAILABLE" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="InstantAuthenticateProductStatus">
+        <xsd:annotation>
+          <xsd:documentation xml:lang="en" />
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="PASS" />
+          <xsd:enumeration value="FAIL" />
+          <xsd:enumeration value="OMITTED" />
+          <xsd:enumeration value="PENDING" />
+          <xsd:enumeration value="COMPLETED" />
+          <xsd:enumeration value="SYSTEM_ERROR" />
+          <xsd:enumeration value="NOT_ENOUGH_DATA" />
+          <xsd:enumeration value="UNABLE_TO_GENERATE" />
+          <xsd:enumeration value="ABANDONED" />
+          <xsd:enumeration value="TIMED_OUT" />
+          <xsd:enumeration value="VELOCITY_LIMIT_EXCEEDED" />
+          <xsd:enumeration value="IDENTITY_NOT_LOCATED" />
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="InstantIDSearchBy">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+          <xsd:element minOccurs="0" name="DOB" type="identity:Date" />
+          <xsd:element minOccurs="0" name="Age" type="xsd:int" />
+          <xsd:element minOccurs="0" name="SSN" type="xsd:string" />
+          <xsd:element minOccurs="0" name="SSNLast4" type="xsd:string" />
+          <xsd:element minOccurs="0" name="DriverLicenseNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="DriverLicenseState" type="xsd:string" />
+          <xsd:element minOccurs="0" name="IPAddress" type="xsd:string" />
+          <xsd:element minOccurs="0" name="HomePhone" type="xsd:string" />
+          <xsd:element minOccurs="0" name="WorkPhone" type="xsd:string" />
+          <xsd:element minOccurs="0" name="UseDOBFilter" type="xsd:boolean" />
+          <xsd:element minOccurs="0" name="DOBRadius" type="xsd:int" />
+          <xsd:element minOccurs="0" name="Passport" type="identity:Passport" />
+          <xsd:element minOccurs="0" name="Gender" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ResponseHeader">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Status" type="xsd:int" />
+          <xsd:element minOccurs="0" name="Message" type="xsd:string" />
+          <xsd:element minOccurs="0" name="QueryId" type="xsd:string" />
+          <xsd:element minOccurs="0" name="TransactionId" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Exceptions">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="Item" type="identity:WsException" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="WsException">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Source" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Code" type="xsd:int" />
+          <xsd:element minOccurs="0" name="Location" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Message" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="InstantIDResult">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="InputEcho" type="identity:InstantIDSearchBy" />
+          <xsd:element minOccurs="0" name="UniqueId" type="xsd:string" />
+          <xsd:element minOccurs="0" name="VerifiedInput" type="identity:VerifiedInput" />
+          <xsd:element minOccurs="0" name="DOBVerified" type="xsd:boolean" />
+          <xsd:element minOccurs="0" name="NameAddressSSNSummary" type="xsd:int" />
+          <xsd:element minOccurs="0" name="NameAddressPhone" type="identity:NameAddressPhone" />
+          <xsd:element minOccurs="0" name="ComprehensiveVerificationIndex" type="xsd:int" />
+          <xsd:element minOccurs="0" name="RiskIndicators">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="RiskIndicator" type="identity:RiskIndicator" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="PotentialFollowupActions">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="FollowupAction" type="identity:RiskIndicator" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="InputCorrected" type="identity:InputCorrected" />
+          <xsd:element minOccurs="0" name="NewAreaCode" type="identity:NewAreaCode" />
+          <xsd:element minOccurs="0" name="ReversePhone" type="identity:IdentityReversePhone" />
+          <xsd:element minOccurs="0" name="PhoneOfNameAddress" type="xsd:string" />
+          <xsd:element minOccurs="0" name="SSNInfo" type="identity:SSNInfo" />
+          <xsd:element minOccurs="0" name="ChronologyHistories">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="ChronologyHistory" type="identity:ChronologyHistory" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="WatchLists">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="WatchList" type="identity:WatchList" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="AdditionalScore1" type="xsd:string" />
+          <xsd:element minOccurs="0" name="AdditionalScore2" type="xsd:string" />
+          <xsd:element minOccurs="0" name="CurrentName" type="identity:Name" />
+          <xsd:element minOccurs="0" name="AdditionalLastNames">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="AdditionalLastName" type="identity:AdditionalLastName" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="Models">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="Model" type="identity:Model" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element minOccurs="0" name="RedFlagsReport" type="identity:RedFlagsReport" />
+          <xsd:element minOccurs="0" name="PassportValidated" type="xsd:boolean" />
+          <xsd:element minOccurs="0" name="FoundSSNCount" type="xsd:int" />
+          <xsd:element minOccurs="0" name="DecedentInfo" type="identity:DecedentInfo" />
+          <xsd:element minOccurs="0" name="DOBMatchLevel" type="xsd:int" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="VerifiedInput">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+          <xsd:element minOccurs="0" name="SSN" type="xsd:string" />
+          <xsd:element minOccurs="0" name="HomePhone" type="xsd:string" />
+          <xsd:element minOccurs="0" name="DOB" type="identity:Date" />
+          <xsd:element minOccurs="0" name="DriverLicenseNumber" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="NameAddressPhone">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Summary" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Type" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Status" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="RiskIndicator">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="RiskCode" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Description" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Sequence" type="xsd:int" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="InputCorrected">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+          <xsd:element minOccurs="0" name="SSN" type="xsd:string" />
+          <xsd:element minOccurs="0" name="HomePhone" type="xsd:string" />
+          <xsd:element minOccurs="0" name="DOB" type="identity:Date" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="NewAreaCode">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="AreaCode" type="xsd:string" />
+          <xsd:element minOccurs="0" name="EffectiveDate" type="identity:Date" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="IdentityReversePhone">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="SSNInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="SSN" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Valid" type="xsd:string" />
+          <xsd:element minOccurs="0" name="IssuedLocation" type="xsd:string" />
+          <xsd:element minOccurs="0" name="IssuedStartDate" type="identity:Date" />
+          <xsd:element minOccurs="0" name="IssuedEndDate" type="identity:Date" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ChronologyHistory">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+          <xsd:element minOccurs="0" name="Phone" type="xsd:string" />
+          <xsd:element minOccurs="0" name="DateFirstSeen" type="identity:Date" />
+          <xsd:element minOccurs="0" name="DateLastSeen" type="identity:Date" />
+          <xsd:element minOccurs="0" name="IsBestAddress" type="xsd:boolean" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="WatchList">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Table" type="xsd:string" />
+          <xsd:element minOccurs="0" name="RecordNumber" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="Address" type="identity:Address" />
+          <xsd:element minOccurs="0" name="Country" type="xsd:string" />
+          <xsd:element minOccurs="0" name="EntityName" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Sequence" type="xsd:int" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="AdditionalLastName">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="DateLastSeen" type="identity:Date" />
+          <xsd:element minOccurs="0" name="LastName" type="xsd:string" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="Model">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Scores">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="Score" type="identity:Score" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="Score">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Type" type="xsd:string" />
+          <xsd:element minOccurs="0" name="Value" type="xsd:int" />
+          <xsd:element minOccurs="0" name="RiskIndicators">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="RiskIndicator" type="identity:RiskIndicator" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="RedFlagsReport">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Version" type="xsd:int" />
+          <xsd:element minOccurs="0" name="RedFlags" type="identity:ArrayOfRedFlag" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="RedFlag">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="xsd:string" />
+          <xsd:element minOccurs="0" name="HighRiskIndicators">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" maxOccurs="unbounded" name="HighRiskIndicator" type="identity:RiskIndicator" />
+              </xsd:sequence>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:complexType name="ArrayOfRedFlag">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" maxOccurs="unbounded" name="RedFlag" type="identity:RedFlag" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="DecedentInfo">
+        <xsd:all>
+          <xsd:element minOccurs="0" name="Name" type="identity:Name" />
+          <xsd:element minOccurs="0" name="DOD" type="identity:Date" />
+          <xsd:element minOccurs="0" name="DOB" type="identity:Date" />
+        </xsd:all>
+      </xsd:complexType>
+      <xsd:element name="discoveryResponse" type="identity:DiscoveryResponse" />
+      <xsd:element name="surveyResponse" type="identity:SurveyResponse" />
+      <xsd:element name="instantVerifyResponse" type="identity:InstantVerifyResponse" />
+      <xsd:element name="instantAuthenticateResponse" type="identity:InstantAuthenticateResponse" />
+      <xsd:element name="identityProofingRequest" type="identity:IdentityProofingRequest" />
+      <xsd:element name="identityProofingResponse" type="identity:IdentityProofingResponse" />
+    </xsd:schema>
+    <xsd:schema xmlns:ns0="http://ns.lexisnexis.com/identity-proofing/1.0" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://ws.identityproofing.idm.risk.lexisnexis.com/">
+      <xsd:import namespace="http://ns.lexisnexis.com/identity-proofing/1.0" />
+      <xsd:element name="invokeIdentityService" type="tns:invokeIdentityService" />
+      <xsd:complexType name="invokeIdentityService">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" ref="ns0:identityProofingRequest" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="invokeIdentityServiceResponse" type="tns:invokeIdentityServiceResponse" />
+      <xsd:complexType name="invokeIdentityServiceResponse">
+        <xsd:sequence>
+          <xsd:element minOccurs="0" ref="ns0:identityProofingResponse" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="invokeIdentityServiceResponse">
+    <wsdl:part name="parameters" element="tns:invokeIdentityServiceResponse" />
+  </wsdl:message>
+  <wsdl:message name="invokeIdentityService">
+    <wsdl:part name="parameters" element="tns:invokeIdentityService" />
+  </wsdl:message>
+  <wsdl:portType name="IdentityProofingWS">
+    <wsdl:operation name="invokeIdentityService">
+      <wsdl:input name="invokeIdentityService" message="tns:invokeIdentityService" />
+      <wsdl:output name="invokeIdentityServiceResponse" message="tns:invokeIdentityServiceResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="identityProofingServiceSoapBinding" type="tns:IdentityProofingWS">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="invokeIdentityService">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="invokeIdentityService">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="invokeIdentityServiceResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="identityProofingService">
+    <wsdl:port name="IdentityProofingWSImplPort" binding="tns:identityProofingServiceSoapBinding">
+      <soap:address location="https://staging.identitymanagement.lexisnexis.com/identity-proofing/services/identityProofingServiceWS/v2" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IdentityProofingResponse ns:transactionID="1854466166-7078401" ns:responseUniqueId="2933056"
+xmlns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:ns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <workFlow>AUTHENTICATION_WORKFLOW</workFlow>
+  <status>PENDING</status>
+  <productResponse ns:LexID="159809033"
+  xsi:type="ns:InstantAuthenticateResponse">
+    <status>PENDING</status>
+    <questions ns:quizId="1028275">
+      <status>PENDING</status>
+      <respondByMS>300000</respondByMS>
+      <numQuestions>3</numQuestions>
+      <question ns:questionId="3540558" ns:sequenceId="1" ns:eq="false">
+        <type>StreetsLived</type>
+        <text>
+          Which of the following STREETS have you PREVIOUSLY or
+          CURRENTLY used as your address?
+        </text>
+        <choice ns:choiceId="17015189" ns:sequenceId="1">
+          <text>WAGON WHEEL DR</text>
+        </choice>
+        <choice ns:choiceId="17015190" ns:sequenceId="2">
+          <text>J M KEYNES LN</text>
+        </choice>
+        <choice ns:choiceId="17015191" ns:sequenceId="3">
+          <text>STANTON CIR S</text>
+        </choice>
+        <choice ns:choiceId="17015192" ns:sequenceId="4">
+          <text>38TH PL</text>
+        </choice>
+        <choice ns:choiceId="
+17015193" ns:sequenceId="5">
+          <text>NONE OF THE ABOVE</text>
+        </choice>
+      </question>
+      <question ns:questionId="3540559" ns:sequenceId="2" ns:eq="false">
+        <type>CitiesLived</type>
+        <text>
+          Which of the following CITIES have you PREVIOUSLY OR
+          CURRENTLY used as your address?
+        </text>
+        <choice ns:choiceId="17015194" ns:sequenceId="1">
+          <text>FREDERICK</text>
+        </choice>
+        <choice ns:choiceId="17015195" ns:sequenceId="2">
+          <text>SYKESVILLE</text>
+        </choice>
+        <choice ns:choiceId="17015196" ns:sequenceId="3">
+          <text>LAS VEGAS</text>
+        </choice>
+        <choice ns:choiceId="17015197" ns:sequenceId="4">
+          <text>PLANT CITY</text>
+        </choice>
+        <choice ns:choiceId="17015198" ns:sequenceId="5">
+          <text>NONE OF THE ABOVE</text>
+        </choice>
+      </question>
+      <question ns:questionId="3540560" ns:sequenceId="3"
+      ns:eq="false">
+        <type>RelativeAge</type>
+        <text>
+          Which of the following age ranges most closely
+          match the AGE of DONNA WRIGHT?
+        </text>
+        <choice ns:choiceId="17015199" ns:sequenceId="1">
+          <text>43-47</text>
+        </choice>
+        <choice ns:choiceId="17015200" ns:sequenceId="2">
+          <text>61-65</text>
+        </choice>
+        <choice ns:choiceId="17015201" ns:sequenceId="3">
+          <text>34-38</text>
+        </choice>
+        <choice ns:choiceId
+="17015202" ns:sequenceId="4">
+          <text>70-74</text>
+        </choice>
+        <choice ns:choiceId="17015203" ns:sequenceId="5">
+          <text>NONE OF THE ABOVE</text>
+        </choice>
+      </question>
+    </questions>
+  </productResponse>
+</IdentityProofingResponse>

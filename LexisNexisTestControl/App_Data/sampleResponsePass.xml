@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+  <IdentityProofingResponse
+  ns:transactionID="1854466166-7078401"
+  ns:responseUniqueId="2865872"
+  xmlns="http://ns.lexisnexis.com/identity-proofing/1.0"
+  xmlns:ns="http://ns.lexisnexis.com/identity-proofing/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <workFlow>AUTHENTICATION_WORKFLOW</workFlow>
+    <status>PASS</status>
+    <productResponse ns:LexID="159809033" ns:sequence="1"
+    xsi:type="ns:InstantAuthenticateResponse">
+      <status>PASS</status>
+      <quizScore ns:quizId="1028634">
+        <status>PASS</status>
+        <score>1</score>
+      </quizScore>
+    </productResponse>
+  </IdentityProofingResponse>
