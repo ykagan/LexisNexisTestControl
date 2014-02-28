@@ -2,8 +2,20 @@
     var _static = {
         currentQuestionId: '',
         currentQuestionIndex:0,
-        questionList: []
-    }
+        questionList: [],
+        fn: {
+            //checks if current question is the last question, 
+            //show the submit button, hide the next button if last question
+            checkLastQuestion: function () {
+                if (_static.currentQuestionIndex >= _static.questionList.length - 1) {
+
+                    $(".btnSubmitQuiz").show();
+                    $(".btnNextQuestion").hide();
+                }
+            }
+        }
+    };
+    
 
     return {
         Init: function () {
@@ -18,17 +30,14 @@
 
             //bind controls
             $(".questionList .btnNextQuestion").bind("click", LNQuiz.ShowNextQuestion)
+            _static.fn.checkLastQuestion();
         },
         ShowNextQuestion: function () {
             $(".questionList .question[data-id=" + _static.currentQuestionId + "]").slideUp();
             _static.currentQuestionIndex++;
             _static.currentQuestionId = _static.questionList[_static.currentQuestionIndex];
-            if (_static.currentQuestionIndex == _static.questionList.length - 1) {
-                //if this is the last question, show the submit button, hide the next button
-                $(".btnSubmitQuiz").show();
-                $(".btnNextQuestion").hide();
-            }
             $(".questionList .question[data-id=" + _static.currentQuestionId + "]").slideDown();
+            _static.fn.checkLastQuestion();
             
         }
     }

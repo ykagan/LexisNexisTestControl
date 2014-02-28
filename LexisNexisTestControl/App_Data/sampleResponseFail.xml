@@ -1,44 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<identityProofingResponse
+<IdentityProofingResponse
 ns:transactionID="1854466166-7078401"
-ns:responseUniqueId="2917606"
+ns:responseUniqueId="2865872"
 xmlns="http://ns.lexisnexis.com/identity-proofing/1.0"
 xmlns:ns="http://ns.lexisnexis.com/identity-proofing/1.0"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <workFlow>AUTHENTICATION_WORKFLOW</workFlow>
-  <status>PENDING</status>
-  <productResponse ns:LexID="159809033"
-xsi:type="ns:InstantAuthenticateResponse">
-    <status>PENDING</status>
-    <questions ns:quizId="1028631">
-      <status>PENDING</status>
-      <respondByMS>300000</respondByMS>
-      <numQuestions>1</numQuestions>
-      <question ns:questionId="3541915" ns:sequenceId="1" ns:eq="false">
-        <type>YearHouseBuilt_IND</type>
-        <text>
-          What YEAR was the house located at 413 BABYLON CT built?
-        </text>
-        <choice ns:choiceId="17021882" ns:sequenceId="1">
-          <text>1990</text>
-        </choice>
-        <choice ns:choiceId="17021883" ns:sequenceId="2">
-          <text>1980</text>
-        </choice>
-        <choice ns:choiceId="17021884" ns:sequenceId="3">
-          <text>1985</text>
-        </choice>
-        <choice ns:choiceId="17021885" ns:sequenceId="4">
-          <text>1995</text>
-        </choice>
-        <choice ns:choiceId="17021886" ns:sequenceId="5">
-          <text>NONE OF THE ABOVE</text>
-        </choice>
-      </question>
-    </questions>
-    <quizScore ns:quizId="1028629">
+  <status>FAO:</status>
+  <productResponse ns:LexID="159809033" ns:sequence="1"
+  xsi:type="ns:InstantAuthenticateResponse">
+    <status>FAIL</status>
+    <quizScore ns:quizId="1028634">
       <status>FAIL</status>
-      <score>2</score>
+      <score>1</score>
     </quizScore>
   </productResponse>
-</identityProofingResponse>
+</IdentityProofingResponse>

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<identityProofingResponse ns:transactionID="1854466166-7078401"
+ns:responseUniqueId="2922044"
+xmlns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:ns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <workFlow>AUTHENTICATION_WORKFLOW</workFlow>
+  <status>UNABLE_TO_GENERATE</status>
+  <productResponse xsi:type="ns:InstantVerifyResponse">
+    <status>PASS</status>
+    <verificationSubProductResponse ns:sequenceId="1"
+    ns:subProduct="VELOCITY">
+      <checkGroup ns:groupName="Velocity" ns:sequence="1">
+        <check ns:checkId="40" ns:sequence="1">
+          <checkCode>QuizVelocity</checkCode>
+          <status>PASS</status>
+        </check>
+      </checkGroup>
+      <status>PASS</status>
+    </verificationSubProductResponse>
+  </productResponse>
+  <productResponse ns:sequence="2" xsi:type="ns:InstantAuthenticateResponse">
+    <responseCodes>
+      <responseCode>
+        <code>IA:35</code>
+        <description>Could not generate enough questions.</description>
+      </responseCode>
+    </responseCodes>
+    <status>FAIL</status>
+    <questions>
+      <status>UNABLE_TO_GENERATE</status>
+    </questions>
+  </productResponse>
+</identityProofingResponse>

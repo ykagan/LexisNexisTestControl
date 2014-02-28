@@ -2,8 +2,6 @@
 
 
 <div id="questionContainer"  class="questionList" runat="server">
-    <p>Please answer the following questions</p>
-
     <asp:Repeater runat="server" ID="questionList" ItemType="LexisNexisTestControl.IDMv2.Question">
         <ItemTemplate>
             <div class="question" data-id='<%# Item.questionId %>' runat="server" id='question'>

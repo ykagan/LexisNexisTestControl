@@ -40,6 +40,8 @@ namespace LexisNexisTestControl.UserControls
             this.QuizQuestions.Questions = response.questions.question.ToList();
             this.QuizQuestions.DataBind();
 
+            this.lblAlert.Text = "Please answer the following questions:";
+
             this.ViewState.Add("quizId", response.questions.quizId);
             this.ViewState.Add("transactionId", transactionId);
             
@@ -66,10 +68,26 @@ namespace LexisNexisTestControl.UserControls
             var response = LNQuizService.GetProductResponse(scoreRequest, ViewState["transactionId"].ToString());
             this.lblScore.Text = response.Score;
             this.lblStatus.Text = response.Status.ToString();
+            
+            this.QuizQuestions.Visible = false;
+            this.pnlResult.Visible = true;
+            this.pnlIntro.Visible = false;
+
             switch(response.Status)
             {
                 case IDMv2.InstantAuthenticateProductStatus.PASS:
                     this.lblAlert.Text = "Thanks you. Your identity has been verified.";
+                    break;
+                case IDMv2.InstantAuthenticateProductStatus.PENDING:
+                    this.lblAlert.Text = "Please answer this additional question";
+                    this.QuizQuestions.Questions = response.BonusQuestions;
+                    this.QuizQuestions.DataBind();
+                    this.QuizQuestions.Visible = true;
+                    break;
+                case IDMv2.InstantAuthenticateProductStatus.OMITTED:
+                    this.lblAlert.Text = "Please answer all the provided questions";
+                    //TODO: This should never happen, client-side checks should ensure all answers
+                    this.QuizQuestions.Visible = true;
                     break;
                 case IDMv2.InstantAuthenticateProductStatus.FAIL:
                     this.lblAlert.Text = "We're sorry but we cannot verify your identity.";
@@ -80,14 +98,14 @@ namespace LexisNexisTestControl.UserControls
                     this.lblAlert.Text = "We do not have enough information to generate a quiz.";
                     break;
                 case IDMv2.InstantAuthenticateProductStatus.TIMED_OUT:
+                case IDMv2.InstantAuthenticateProductStatus.ABANDONED:
                     this.lblAlert.Text = "Your session has timed out. Please try again.";
                     break;
+                case IDMv2.InstantAuthenticateProductStatus.SYSTEM_ERROR:
                 default:
                     this.lblAlert.Text = "An unexpected error occured. Please try again.";
                     break;
             }
-            this.QuizQuestions.Visible = false;
-            this.pnlResult.Visible = true;
         }
     }
 }

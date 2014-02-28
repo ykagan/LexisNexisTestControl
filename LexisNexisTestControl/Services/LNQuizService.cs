@@ -132,6 +132,8 @@ namespace LexisNexisTestControl.Services
         {
             public string Score { get; set; }
             public IDMv2.InstantAuthenticateProductStatus Status { get; set; }
+            public string Description { get; set; }
+            public List<IDMv2.Question> BonusQuestions { get; set; }
         }
         public static QuizResponse GetProductResponse(IDMv2.IdentityScoreRequest request, string transactionId)
         {
@@ -148,7 +150,7 @@ namespace LexisNexisTestControl.Services
                 #region Mock Response
                 IDMv2.IdentityProofingResponse proofingResponse;
                 XmlSerializer xml = new XmlSerializer(typeof(IDMv2.IdentityProofingResponse), "http://ns.lexisnexis.com/identity-proofing/1.0");
-                var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponsePass.xml");
+                var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponseBonusQuestion.xml");
                 using (Stream stream = new FileStream(sampleFilePath, FileMode.Open))
                 {
                     proofingResponse = (IDMv2.IdentityProofingResponse)xml.Deserialize(stream);
@@ -162,8 +164,9 @@ namespace LexisNexisTestControl.Services
                 return new QuizResponse
                 {
                     Score = response.quizScore != null ? response.quizScore.score :"0",
-                    Status =  response.status
-                    //TODO: alternative quiz option
+                    Status =  response.status,
+                    Description = response.responseCodes != null && response.responseCodes.Length > 0 ? response.responseCodes.FirstOrDefault().description : "",
+                    BonusQuestions = response.questions != null ? response.questions.question.ToList() : null
                 };
             }
             return null;

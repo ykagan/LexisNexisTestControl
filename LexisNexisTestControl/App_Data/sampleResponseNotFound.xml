@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IdentityProofingResponse ns:transactionID="1854466166-7078401"
+ns:responseUniqueId="2917248"
+xmlns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:ns="http://ns.lexisnexis.com/identity-proofing/1.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <workFlow>AUTHENTICATION_WORKFLOW</workFlow>
+  <status>FAIL</status>
+  <productResponse ns:sequence="1" xsi:type="ns:DiscoveryResponse">
+    <responseCodes>
+      <responseCode>
+        <code>ID:1</code>
+        <description>
+          Failed to retrieve a unique identity
+        </description>
+      </responseCode>
+    </responseCodes>
+    <status>FAIL</status>
+  </productResponse>
+</IdentityProofingResponse>
