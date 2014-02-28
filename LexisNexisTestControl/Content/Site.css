@@ -31,3 +31,14 @@ input[type="password"] {
 .question{
     
 }
+
+.questionList{
+
+}
+
+.questionList .question{
+    display:none;
+}
+.btnSubmitQuiz{
+    display:none;
+}

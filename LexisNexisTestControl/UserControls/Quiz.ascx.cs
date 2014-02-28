@@ -26,6 +26,8 @@ namespace LexisNexisTestControl.UserControls
             get;
             set;
         }
+
+        
         public void GenerateQuizUI(QuizUser user)
         {
             User = user;

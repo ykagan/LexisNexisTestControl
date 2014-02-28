@@ -41,6 +41,14 @@ namespace LexisNexisTestControl
                     Path = "~/Scripts/respond.min.js",
                     DebugPath = "~/Scripts/respond.js",
                 });
+
+            ScriptManager.ScriptResourceMapping.AddDefinition(
+               "LNQuiz",
+               new ScriptResourceDefinition
+               {
+                   Path = "~/Scripts/LNQuiz.js",
+                   DebugPath = "~/Scripts/LNQuiz.js",
+               });
         }
     }
 }

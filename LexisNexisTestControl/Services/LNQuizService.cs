@@ -11,6 +11,10 @@ namespace LexisNexisTestControl.Services
 {
     public static class LNQuizService
     {
+        /// <summary>
+        /// Initialize a IDMv2 service session instance
+        /// </summary>
+        /// <returns></returns>
         public static IDMv2.IdentityProofingWSClient InitWSClient()
         {
             IDMv2.IdentityProofingWSClient myIDMv2Client = new IDMv2.IdentityProofingWSClient();
@@ -20,6 +24,20 @@ namespace LexisNexisTestControl.Services
             return myIDMv2Client;
         }
 
+        private static bool UseMockResponses
+        {
+            get
+            {
+                return Boolean.Parse(ConfigurationManager.AppSettings["UseMockResponses"]);
+            }
+        }
+
+        /// <summary>
+        /// Creates a IDMv2 request to be passed to the service
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="transactionId"></param>
+        /// <returns></returns>
         public static IDMv2.IdentityProofingRequest GetRequest(object item, string transactionId)
         {
             //New profing request
@@ -35,26 +53,31 @@ namespace LexisNexisTestControl.Services
         }
         public static IDMv2.InstantAuthenticateResponse GetQuizQuestions(QuizUser user, string transactionId)
         {
-            
-            
-
             //Generate an InputSubject model to get quiz for
             IDMv2.InputSubject subject = GetSubject(user);
 
             var ws = InitWSClient();
             var request = GetRequest(subject, System.Guid.NewGuid().ToString());
+            IDMv2.ProductResponse[] productResponses;
             //invoke service
-            var productResponses = ws.invokeIdentityService(request).productResponse;
-            #region OfflineResponse
-                        //IDMv2.IdentityProofingResponse response;
-                        //XmlSerializer xml = new XmlSerializer(typeof(IDMv2.IdentityProofingResponse), "http://ns.lexisnexis.com/identity-proofing/1.0");
-                        //var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponse.xml");
-                        //using (Stream stream = new FileStream(sampleFilePath, FileMode.Open))
-                        //{
-                        //    response = (IDMv2.IdentityProofingResponse)xml.Deserialize(stream);
-                        //}
-                        //var productResponses = response.productResponse;
-            #endregion
+            if (!UseMockResponses)
+            {
+                productResponses = ws.invokeIdentityService(request).productResponse;
+            }
+            else
+            {
+
+                #region OfflineResponse
+                IDMv2.IdentityProofingResponse response;
+                XmlSerializer xml = new XmlSerializer(typeof(IDMv2.IdentityProofingResponse), "http://ns.lexisnexis.com/identity-proofing/1.0");
+                var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponse.xml");
+                using (Stream stream = new FileStream(sampleFilePath, FileMode.Open))
+                {
+                    response = (IDMv2.IdentityProofingResponse)xml.Deserialize(stream);
+                }
+                productResponses = response.productResponse;
+                #endregion
+            }
 
             if (productResponses == null || productResponses.Length == 0)
             {
@@ -66,16 +89,6 @@ namespace LexisNexisTestControl.Services
                 throw new Exception("Wrong product type or data");
             }
             return authResponse;
-
-            //return productResponse.Select(r =>
-            //{
-            //    XmlSerializer ser = new XmlSerializer(r.GetType());
-            //    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            //    System.IO.StringWriter writer = new System.IO.StringWriter(sb);
-            //    ser.Serialize(writer,r); 	// Convert to an XML string 
-            //    return sb.ToString();
-            //}).ToList();
-
         }
 
         private static IDMv2.InputSubject GetSubject(QuizUser user)
@@ -107,10 +120,7 @@ namespace LexisNexisTestControl.Services
                     Month = user.Month.ToString(),
                     Day = user.Day.ToString()
                 },
-                
-
             };
-
 
             InputSubject = new IDMv2.InputSubject(){
                     Item = vPerson
@@ -118,7 +128,6 @@ namespace LexisNexisTestControl.Services
             return InputSubject;
         }
 
-       
         public class QuizResponse
         {
             public string Score { get; set; }
@@ -129,21 +138,30 @@ namespace LexisNexisTestControl.Services
             IDMv2.IdentityProofingWSClient client = InitWSClient();
 
             var proofingRequest = GetRequest(request, transactionId);
-
-            var response = client.invokeIdentityService(proofingRequest).productResponse.First() as IDMv2.InstantAuthenticateResponse;//TODO: can there be more than one response?
-            //IDMv2.IdentityProofingResponse proofingResponse;
-            //XmlSerializer xml = new XmlSerializer(typeof(IDMv2.IdentityProofingResponse), "http://ns.lexisnexis.com/identity-proofing/1.0");
-            //var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponsePass.xml");
-            //using (Stream stream = new FileStream(sampleFilePath, FileMode.Open))
-            //{
-            //    proofingResponse = (IDMv2.IdentityProofingResponse)xml.Deserialize(stream);
-            //}
-            //var response = proofingResponse.productResponse.First() as IDMv2.InstantAuthenticateResponse;
+            IDMv2.InstantAuthenticateResponse response;
+            if(!UseMockResponses)
+            {
+                response = client.invokeIdentityService(proofingRequest).productResponse.First() as IDMv2.InstantAuthenticateResponse;//TODO: can there be more than one response?          
+            }
+            else
+            {
+                #region Mock Response
+                IDMv2.IdentityProofingResponse proofingResponse;
+                XmlSerializer xml = new XmlSerializer(typeof(IDMv2.IdentityProofingResponse), "http://ns.lexisnexis.com/identity-proofing/1.0");
+                var sampleFilePath = Path.Combine(HttpContext.Current.Request.PhysicalApplicationPath, "App_Data", "sampleResponsePass.xml");
+                using (Stream stream = new FileStream(sampleFilePath, FileMode.Open))
+                {
+                    proofingResponse = (IDMv2.IdentityProofingResponse)xml.Deserialize(stream);
+                }
+                response = proofingResponse.productResponse.First() as IDMv2.InstantAuthenticateResponse;
+                #endregion
+            }
+           
             if(response != null)
             {
                 return new QuizResponse
                 {
-                    Score = response.quizScore.score,
+                    Score = response.quizScore != null ? response.quizScore.score :"0",
                     Status =  response.status
                     //TODO: alternative quiz option
                 };
@@ -151,5 +169,6 @@ namespace LexisNexisTestControl.Services
             return null;
             
         }
+
     }
 }
